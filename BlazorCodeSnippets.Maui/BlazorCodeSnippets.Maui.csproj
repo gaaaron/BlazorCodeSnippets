@@ -1,29 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
-
+  
     <PropertyGroup>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net6.0-windows10.0.19041.0</TargetFrameworks>
-        <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-        <!-- <TargetFrameworks>$(TargetFrameworks);net6.0-tizen</TargetFrameworks> -->
+        <TargetFrameworks>net7.0-windows10.0.19041.0</TargetFrameworks>
         <OutputType>Exe</OutputType>
-        <RootNamespace>BlazorCodeSnippets.Desktop</RootNamespace>
+        <RootNamespace>BlazorCodeSnippets.Maui</RootNamespace>
         <UseMaui>true</UseMaui>
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
 
         <!-- Display name -->
-        <ApplicationTitle>BlazorCodeSnippets.Desktop</ApplicationTitle>
+        <ApplicationTitle>BlazorCodeSnippets.Maui</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.blazorcodesnippets.desktop</ApplicationId>
+        <ApplicationId>com.companyname.blazorcodesnippets.maui</ApplicationId>
         <ApplicationIdGuid>51C156B4-2EE0-4F74-9A4C-5FB96C0EF60B</ApplicationIdGuid>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
 
-        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
-        <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+        <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+        <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     </PropertyGroup>
 
     <ItemGroup>

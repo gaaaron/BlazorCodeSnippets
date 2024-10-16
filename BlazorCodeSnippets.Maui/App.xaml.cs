@@ -1,4 +1,4 @@
-﻿namespace BlazorCodeSnippets.Desktop
+﻿namespace BlazorCodeSnippets.Maui
 {
     public partial class App : Application
     {

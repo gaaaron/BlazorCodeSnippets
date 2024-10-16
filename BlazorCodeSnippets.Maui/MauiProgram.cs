@@ -1,8 +1,8 @@
 ﻿using BlazorCodeSnippets.Common;
 using BlazorCodeSnippets.Common.Interfaces;
-using BlazorCodeSnippets.Desktop.Platforms.Windows.Services;
+using BlazorCodeSnippets.Maui.Platforms.Windows.Services;
 
-namespace BlazorCodeSnippets.Desktop
+namespace BlazorCodeSnippets.Maui
 {
     public static class MauiProgram
     {

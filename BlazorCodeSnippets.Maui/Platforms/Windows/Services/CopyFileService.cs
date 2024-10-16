@@ -1,6 +1,6 @@
 ﻿using BlazorCodeSnippets.Common.Interfaces;
 
-namespace BlazorCodeSnippets.Desktop.Platforms.Windows.Services
+namespace BlazorCodeSnippets.Maui.Platforms.Windows.Services
 {
     internal class CopyFileService : ICopyFileService
     {
