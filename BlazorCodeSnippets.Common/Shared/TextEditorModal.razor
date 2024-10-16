@@ -1,0 +1,97 @@
+﻿@using System.Text.RegularExpressions;
+<div class="modal @(_showModal?"show":"")" style="display:@(_showModal?"block":"hidden")" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title">@_popupTitle</h5>
+            </div>
+            @if (_showModal)
+            {
+                <EditForm OnValidSubmit="OkClicked" EditContext="_editContext">
+                    <div class="modal-body d-flex flex-column">
+                        <DataAnnotationsValidator />
+                        @if (_editContext?.GetValidationMessages().Any() == true)
+                        {
+                            <div class="alert alert-danger m-0 mb-1">
+                                <ValidationSummary />
+                            </div>
+                        }
+
+                        <label for="editTextId" class="text-danger"><ValidationMessage For="() => this._editedText" /></label>
+                        <InputText id="editTextId" class="form-control mb-3" @bind-Value="_editedText" />
+                        <button type="submit" class="btn btn-primary">Ok</button>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+</div>
+
+@if (_showModal)
+{
+    <div class="modal-backdrop fade show"></div>
+}
+
+@code {
+    private EditContext? _editContext;
+    private ValidationMessageStore? _messageStore;
+    private string? _validationRegex;
+
+    private bool _showModal;
+    private string _popupTitle = "Edit text";
+    private string _editedText = string.Empty;
+    private TaskCompletionSource<string>? _editorResult;
+
+    public Task<string> EditText(string popupTitle, string? originalText = null, string? validationRegex = null)
+    {
+        _popupTitle = popupTitle;
+        _editedText = originalText ?? string.Empty;
+        _validationRegex = validationRegex;
+        _showModal = true;
+
+        SetupEditContext();
+        StateHasChanged();
+
+        _editorResult = new TaskCompletionSource<string>();
+        return _editorResult.Task;
+    }
+
+    private void OkClicked()
+    {
+        CloseModal();
+        _editorResult!.SetResult(_editedText);
+    }
+
+    private void CloseModal()
+    {
+        if (!string.IsNullOrEmpty(_validationRegex))
+        {
+            _editContext!.OnValidationRequested -= OnValidationRequested;
+        }
+
+        _showModal = false;
+        StateHasChanged();
+    }
+
+    private void SetupEditContext()
+    {
+        _editContext = new(this);
+        _editContext.SetFieldCssClassProvider(new CustomFieldClassProvider("", "is-invalid"));
+
+        if (!string.IsNullOrEmpty(_validationRegex))
+        {
+            _messageStore = new(_editContext);
+            _editContext.OnValidationRequested += OnValidationRequested;
+        }
+    }
+
+    private void OnValidationRequested(object? sender, ValidationRequestedEventArgs? e)
+    {
+        _messageStore!.Clear();
+
+        if (!Regex.IsMatch(_editedText, _validationRegex!))
+        {
+            _messageStore.Add(() => _editedText, "Invalid text format");
+        }
+    }
+}

@@ -1,0 +1,3 @@
+﻿.body-container:has(> .full-size) {
+    padding: 0 !important;
+}

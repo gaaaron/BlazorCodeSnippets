@@ -1,0 +1,25 @@
+﻿@inherits LayoutComponentBase
+@implements ITextEditor
+
+<CascadingValue Value="@((ITextEditor)this)">
+    <div class="d-flex flex-row">
+        <div class="text-bg-dark vh-100 p-3" style="width: 250px;min-width: 250px;">
+            <NavMenu />
+        </div>
+
+        <div class="flex-grow-1 vh-100 p-3 overflow-auto body-container">
+            @Body
+        </div>
+
+    </div>
+</CascadingValue>
+<TextEditorModal @ref="_textEditorModal"/>
+
+@code {
+    private TextEditorModal? _textEditorModal;
+
+    public Task<string> EditText(string popupTitle, string? originalText = null, string? validationRegex = null)
+    {
+        return _textEditorModal!.EditText(popupTitle, originalText, validationRegex);
+    }
+}

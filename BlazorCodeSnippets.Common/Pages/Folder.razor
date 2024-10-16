@@ -1,0 +1,125 @@
+﻿@page "/Folder/{FolderId:guid}"
+
+@implements IDisposable
+
+<PageTitle>Folder</PageTitle>
+
+@if (_snippets != null)
+{
+    @foreach (var snippet in _snippets)
+    {
+        <div class="card mb-3">
+            <div class="card-header hstack">
+                <a href="/details/@snippet.Id" class="text-decoration-none me-auto">@snippet.Name</a>
+                @if (CopyFileService.IsSupported && !string.IsNullOrEmpty(snippet.FileName))
+                {
+                    <button class="btn btn-sm me-3" @onclick="@(() => CopyFile(snippet))">Copy file</button>
+                }
+                <button class="btn btn-sm me-3" @onclick="@(() => Copy(snippet.RawValue))">Copy text</button>
+                <button class="btn btn-sm btn-white me-3" @onclick="@(() => Rename(snippet))">Rename</button>
+                <button class="btn btn-sm btn-danger" @onclick="@(() => Delete(snippet))">Remove</button>
+            </div>
+            <div class="card-body p-0">
+                <pre class="m-0 p-2" style="max-height: 200px; font-size: 0.8rem;"><code>@((MarkupString)snippet.FormattedValue)</code></pre>
+            </div>
+        </div>
+    }
+}
+
+
+@code {
+    private List<CodeSnippet>? _snippets;
+
+    [Parameter]
+    public Guid FolderId { get; set; }
+
+    [Inject]
+    public ISnippetService SnippetService { get; set; } = default!;
+
+    [Inject]
+    public IClipboardService ClipboardService { get; set; } = default!;
+
+
+    [Inject]
+    public ICopyFileService CopyFileService { get; set; } = default!;
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = default!;
+
+    [CascadingParameter]
+    public ITextEditor TextEditor { get; set; } = default!;
+
+    protected override void OnParametersSet()
+    {
+        UpdateSnippets();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ClipboardService.Initialize();
+
+        ClipboardService.FilePasted += ClipboardService_FilePasted;
+        ClipboardService.TextPasted += ClipboardService_TextPasted;
+        SnippetService.SnippetsChanged += CodeSnippetService_SnippetsChanged;
+
+    }
+
+    public void Dispose()
+    {
+        ClipboardService.FilePasted -= ClipboardService_FilePasted;
+        ClipboardService.TextPasted -= ClipboardService_TextPasted;
+        SnippetService.SnippetsChanged -= CodeSnippetService_SnippetsChanged;
+    }
+
+    private void CopyFile(CodeSnippet snippet)
+    {
+        CopyFileService.CopyFileToClipboard(snippet.FileName!, snippet.RawValue);
+    }
+
+    private void Copy(string text)
+    {
+        ClipboardService.CopyTextToClipboard(text);
+    }
+
+    private async Task Rename(CodeSnippet snippet)
+    {
+        var newName = await TextEditor.EditText("Edit snippet name", snippet.Name, validationRegex: @"^(?!.*<[^>]+>).*$");
+        var newSnippet = snippet with { Name = newName };
+
+        SnippetService.Update(newSnippet);
+    }
+
+    private void Delete(CodeSnippet snippet)
+    {
+        SnippetService.Delete(snippet);
+    }
+
+    private void CodeSnippetService_SnippetsChanged()
+    {
+        UpdateSnippets();
+        StateHasChanged();
+    }
+
+    private void ClipboardService_FilePasted((string FileName, string Content) args)
+    {
+        SnippetService.AddSnippet(FolderId, args.FileName, args.Content, args.FileName);
+    }
+
+    private async void ClipboardService_TextPasted(string content)
+    {
+        var name = await TextEditor.EditText("Edit snippet name", validationRegex: @"^(?!.*<[^>]+>).*$");
+        await SnippetService.AddSnippet(FolderId, name, content);
+    }
+
+    private void UpdateSnippets()
+    {
+        try
+        {
+            _snippets = SnippetService.Query(FolderId).ToList();
+        }
+        catch (NotFoundException)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}

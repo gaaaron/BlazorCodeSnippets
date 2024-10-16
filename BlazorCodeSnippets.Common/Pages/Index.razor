@@ -1,0 +1,40 @@
+﻿@page "/"
+@using System.Text;
+@using BlazorCodeSnippets.Common.Interfaces;
+
+<PageTitle>Home</PageTitle>
+
+<h1 class="mb-4">Code Snippets</h1>
+<label class="btn btn-primary">
+    Import
+    <InputFile accept="text/*" hidden OnChange="@ImportButtonClicked" />
+</label>
+
+<button class="btn btn-primary" @onclick="ExportButtonClicked">Export</button>
+
+@code {
+    [Inject]
+    public ISnippetService CodeSnippetService { get; set; } = default!;
+
+    [Inject]
+    public IFileDownloadService DownloadService { get; set; } = default!;
+
+    [CascadingParameter]
+    public ITextEditor TextEditor { get; set; } = default!;
+
+    private async Task ImportButtonClicked(InputFileChangeEventArgs e)
+    {
+        var buffer = new byte[e.File.Size];
+        using var stream = e.File.OpenReadStream();
+        await stream.ReadAsync(buffer, 0, buffer.Length);
+        var fileContent = System.Text.Encoding.UTF8.GetString(buffer);
+
+        CodeSnippetService.ImportFromJson(fileContent);
+    }
+
+    private async Task ExportButtonClicked()
+    {
+        var serialized = CodeSnippetService.ExportToJson();
+        await DownloadService.Download(serialized);
+    }
+}

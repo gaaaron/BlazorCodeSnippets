@@ -1,0 +1,26 @@
+﻿@page "/details/{SnippetId:guid}"
+
+<PageTitle>Details</PageTitle>
+
+@if (_snippet != null)
+{
+    <pre class="full-size m-0 p-3 h-100 overflow-scroll"><code>@((MarkupString)_snippet.FormattedValue)</code></pre>
+}
+
+@code {
+    private CodeSnippet? _snippet;
+
+    [Parameter]
+    public Guid SnippetId { get; set; }
+
+    [CascadingParameter]
+    public MainLayout Layout { get; set; }
+
+    [Inject]
+    public ISnippetService CodeSnippetService { get; set; } = default!;
+
+    protected override void OnParametersSet()
+    {
+        _snippet = CodeSnippetService.GetSnippet(SnippetId);
+    }
+}

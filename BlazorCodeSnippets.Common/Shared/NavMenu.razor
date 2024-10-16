@@ -1,0 +1,99 @@
+﻿@implements IDisposable
+
+<div class="text-bg-dark h-100 d-flex flex-column">
+    <ul class="nav nav-pills flex-column flex-grow-1 overflow-auto flex-nowrap">
+        <li class="nav-item">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All" @onclick="() => SetActiveFolder(null)">
+                Import/Export
+            </NavLink>
+        </li>
+        @foreach (var folder in SnippetService.GetAllFolder().ToList())
+        {
+            @if (SnippetService.ShowFolder(folder, _activeFolder))
+            {
+                <li class="nav-item" @key="folder.Id">
+                    <NavLink class="@(folder.IsTopLevel() ? "nav-link" : "nav-link text-secondary")" href="@($"/Folder/{folder.Id}")" Match="NavLinkMatch.Prefix" @onclick="() => SetActiveFolder(folder.Id)">
+                        @folder.Name
+                    </NavLink>
+                </li>
+            }
+        }
+    </ul>
+
+    <div class="d-flex flex-column">
+        @if (_activeFolder != null)
+        {
+            <button class="btn btn-secondary w-100" @onclick="Rename">
+                Rename folder
+            </button>
+            <button class="btn btn-danger w-100 mt-2" @onclick="Remove">
+                Remove folder
+            </button>
+        }
+
+        <button class="btn btn-success w-100 mt-2" @onclick="AddNew">
+            Add new folder
+        </button>
+    </div>
+</div>
+
+@code {
+
+    [Inject]
+    public ISnippetService SnippetService { get; set; } = default!;
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = default!;
+
+    [CascadingParameter]
+    public ITextEditor TextEditor { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        SnippetService.FoldersChanged += FolderService_FoldersChanged;
+    }
+
+    public void Dispose()
+    {
+        SnippetService.FoldersChanged -= FolderService_FoldersChanged;
+    }
+
+    private void FolderService_FoldersChanged()
+    {
+        StateHasChanged();
+    }
+
+    private async void AddNew()
+    {
+        var folderName = await TextEditor.EditText("Add new folder", validationRegex: "^(?!.*<[^>]+>).*$");
+        var newFolder = SnippetService.AddFolder(folderName);
+
+        SetActiveFolder(newFolder.Id);
+        NavigationManager.NavigateTo($"/Folder/{newFolder.Id}");
+    }
+
+
+    private Guid? _activeFolder;
+
+    private void SetActiveFolder(Guid? folder)
+    {
+        _activeFolder = folder;
+    }
+
+    private async Task Rename()
+    {
+        var activeFolder = SnippetService.GetFolder(_activeFolder!.Value);
+
+        var newFolderName = await TextEditor.EditText("Edit folder name", activeFolder.Name, validationRegex: "^(?!.*<[^>]+>).*$");
+        var renamedFolder = activeFolder! with { Name = newFolderName };
+
+        SnippetService.Update(renamedFolder);
+    }
+
+    private void Remove()
+    {
+        var activeFolder = SnippetService.GetFolder(_activeFolder!.Value);
+        _activeFolder = null;
+        SnippetService.Delete(activeFolder);
+    }
+}
