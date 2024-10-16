@@ -1,6 +1,6 @@
 ﻿using BlazorCodeSnippets.Common.Interfaces;
 
-namespace BlazorCodeSnippets.Services
+namespace BlazorCodeSnippets.Web.Services
 {
     public class CopyFileService : ICopyFileService
     {

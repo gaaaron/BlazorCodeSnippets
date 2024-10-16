@@ -1,10 +1,10 @@
 using BlazorCodeSnippets.Common;
 using BlazorCodeSnippets.Common.Interfaces;
-using BlazorCodeSnippets.Services;
+using BlazorCodeSnippets.Web.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
-namespace BlazorCodeSnippets
+namespace BlazorCodeSnippets.Web
 {
     public class Program
     {
