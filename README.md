@@ -19,3 +19,6 @@ A projekt négy különálló részből áll, amelyek mind különböző platfor
 
 ## Cél és felhasználás:
 Az alkalmazás célja, hogy a fejlesztők könnyebben kezeljék és rendszerezzék a kódrészleteiket, miközben egy technológiai demóként is szolgál, bemutatva a Blazor alkalmazásának lehetőségeit különböző platformokon. Hasznos eszköz fejlesztői demók során, ahol a kódrészletek előre elkészítve állnak rendelkezésre, ezáltal gyorsítva a bemutatót és segítve a demó folyamatát.
+
+## Projekt elindítása:
+A programot érdemes a WPF projektet kijelölve elindítani. Ebben beimportálható a mellékelt *demo_snippets.txt* fájl. Ez a fájl egy előre elkészített snippet gyűjteményt tartalmaz, amely magának a BlazorCodeSnippets alkalmazásnak a felépítését mutatja be. Az importálás után a fejlesztő könnyedén lépésről-lépésre követheti a program építését (és így akár egy live coding bemutatót is tarthat minden kódrészletet időben beillesztve).
